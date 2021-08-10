@@ -23,5 +23,9 @@
   "bugs": {
     "url": "https://github.com/Falx/solid-wm/issues"
   },
-  "homepage": "https://github.com/Falx/solid-wm#readme"
+  "homepage": "https://github.com/Falx/solid-wm#readme",
+  "devDependencies": {
+    "@types/node": "^16.4.13",
+    "types-wm": "^1.1.0"
+  }
 }
