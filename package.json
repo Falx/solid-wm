@@ -1,0 +1,27 @@
+{
+  "name": "solid-wm",
+  "version": "0.0.1",
+  "description": "Web Monetization for SOLID apps",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "/dist"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Falx/solid-wm.git"
+  },
+  "keywords": [
+    "solid",
+    "web-monetization"
+  ],
+  "author": "thomas.dupont@ugent.be",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Falx/solid-wm/issues"
+  },
+  "homepage": "https://github.com/Falx/solid-wm#readme"
+}
