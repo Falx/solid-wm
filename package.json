@@ -27,5 +27,8 @@
   "devDependencies": {
     "@types/node": "^16.4.13",
     "types-wm": "^1.1.0"
+  },
+  "dependencies": {
+    "uuid": "^8.3.2"
   }
 }

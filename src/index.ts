@@ -1,7 +1,7 @@
 import { SolidWebMonetization } from "./wm";
 
 (function () {
-    console.log('SOLID-WM load..');
+    console.log('SOLID-WM loading..');
 
     window.document.monetization = new SolidWebMonetization();
 
