@@ -1,12 +1,11 @@
-import { info } from "console";
-import { EventListener, EventListenerOrListenerObject, Monetization, MonetizationEvent, MonetizationEventMap, MonetizationState } from "types-wm";
+import { EventListener, Monetization, MonetizationEvent, MonetizationEventMap, MonetizationState } from "types-wm";
 import { v4 as uuidv4 } from "uuid";
 
 type MonetizationEventType = keyof MonetizationEventMap;
 
 
 export class SolidWebMonetization implements Monetization {
-    readonly state: MonetizationState = 'pending';
+    state: MonetizationState = 'pending';
 
     onstart: EventHandlerNonNull;
     onprogress: EventHandlerNonNull;
@@ -35,24 +34,61 @@ export class SolidWebMonetization implements Monetization {
 
     constructor() {
         // Set initial state
-        this.state = 'pending';
-        this.firePending();
+        this.setPendingState();
 
-        // Search for meta tag
-        let meta = this.searchMetaTag();
-        if (meta) {
-            this.paymentPointer = meta.content;
+        // Search for existing meta tag now
+        this.searchStaticMetaTag();
+
+        // start listening for changes on meta tag later
+        this.listenForMetaTagChanges();
+    }
+
+    /**
+     * Start listening for changes on the meta[name=monetization] in the head section
+     */
+    private listenForMetaTagChanges() {
+        const observer = new MutationObserver(list => {
+            console.log(list)
+            list
+                .filter(item => item.target['name'] === 'monetization')
+                .filter(item => item.target['content'] && item.target['content'] !== this.paymentPointer)
+                .forEach(item => this.setPaymentPointer(item.target['content']))
+        });
+        observer.observe(document.head, { attributeFilter: ['name'], attributes: true, childList: false, subtree: true });
+    }
+
+    /**
+     * Sets a new payment pointer string and generates a unique (uuid v4) monetizationId.
+     * @param pointer The new payment pointer string
+     */
+    private setPaymentPointer(pointer: string) {
+        console.log('new pointer', pointer)
+        if (pointer != this.paymentPointer) {
+            this.paymentPointer = pointer;
+            // Generate unique UUID (v4)
+            this.monetizationId = uuidv4();
+            this.setStoppedState();
         }
-
-        // Generate unique UUID (v4)
-        this.monetizationId = uuidv4();
-
-        // Setup Payment Handler
-
-
         this.printInfo();
+    }
+
+    private setStoppedState() {
         this.state = 'stopped';
         this.fireStopped();
+    }
+
+    private setStartedState() {
+        this.state = 'started';
+        this.fireStarted();
+    }
+
+    private setPendingState() {
+        this.state = 'pending';
+        this.firePending();
+    }
+
+    private setProgressState() {
+        // TODO: Not implemented yet
     }
 
     private printInfo() {
@@ -63,16 +99,18 @@ export class SolidWebMonetization implements Monetization {
         console.table(data)
     }
 
-    private searchMetaTag(): HTMLMetaElement | null {
+    private searchStaticMetaTag(): void {
         let result = null;
         let metas = document.getElementsByTagName('meta');
         for (let i = 0; i < metas.length; i++) {
             let meta = metas.item(i);
-            if (meta.name === 'monetization') {
+            if (meta?.name === 'monetization') {
                 result = meta;
             }
         }
-        return result;
+        if (result) {
+            this.setPaymentPointer(result.content)
+        }
     }
 
     private firePending() {
