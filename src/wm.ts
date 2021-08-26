@@ -52,7 +52,10 @@ export class SolidWebMonetization implements Monetization {
             list
                 .filter(item => item.target['name'] === 'monetization')
                 .filter(item => item.target['content'] && item.target['content'] !== this.paymentPointer)
-                .forEach(item => this.setPaymentPointer(item.target['content']))
+                .forEach(item => {
+                    this.setPaymentPointer(item.target['content']);
+                    this.setupPaymentRequest();
+                })
         });
         observer.observe(document.head, { attributeFilter: ['name'], attributes: true, childList: false, subtree: true });
     }
@@ -110,7 +113,18 @@ export class SolidWebMonetization implements Monetization {
         }
         if (result) {
             this.setPaymentPointer(result.content)
+            this.setupPaymentRequest();
         }
+    }
+
+    private setupPaymentRequest() {
+        const req = new PaymentRequest([{
+            "supportedMethods": "webmonetization",
+            "data": {
+                "paymentPointer": this.paymentPointer
+            }
+        }], { total: { amount: { currency: 'USD', value: '10000' }, label: 'Total due' } }, {})
+        req.show(null).then(msg => console.log(msg));
     }
 
     private firePending() {
